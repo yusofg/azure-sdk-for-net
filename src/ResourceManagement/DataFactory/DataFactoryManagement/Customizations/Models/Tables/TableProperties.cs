@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Azure.Management.DataFactories.Common.Models;
+using Microsoft.Azure.Management.DataFactories.Core.Models;
 
 namespace Microsoft.Azure.Management.DataFactories.Models
 {
@@ -41,9 +42,14 @@ namespace Microsoft.Azure.Management.DataFactories.Models
         public IList<DataElement> Structure { get; set; }
 
         /// <summary>
-        /// Required. Scheduler of the table.
+        /// Required. UpdateMode of the table.
         /// </summary>
-        public Availability Availability { get; set; }
+        public string UpdateMode { get; set; }
+
+        /// <summary>
+        /// Required.  of the table.
+        /// </summary>
+        public SlicingModel SlicingModel { get; set; }
 
         /// <summary>
         /// Policy applied to the table.
@@ -76,11 +82,11 @@ namespace Microsoft.Azure.Management.DataFactories.Models
 
         public TableProperties(
             TableTypeProperties typeProperties, 
-            Availability availability, 
+            string updateMode,
             string linkedServiceName)
             : base(typeProperties)
         {
-            this.Availability = availability;
+            this.UpdateMode = updateMode;
             this.LinkedServiceName = linkedServiceName;
         }
 
@@ -120,12 +126,12 @@ namespace Microsoft.Azure.Management.DataFactories.Models
         /// <param name="errorMessage">The error message when provisioning failed.</param>
         internal TableProperties(
             TableTypeProperties typeProperties,
-            Availability availability,
+            string mode,
             string linkedServiceName,
             DateTime? createTime,
             string provisioningState,
             string errorMessage)
-            : this(typeProperties, availability, linkedServiceName)
+            : this(typeProperties, mode, linkedServiceName)
         {
             this.CreateTime = createTime;
             this.ProvisioningState = provisioningState;

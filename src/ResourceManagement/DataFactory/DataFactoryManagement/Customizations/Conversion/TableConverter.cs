@@ -45,7 +45,8 @@ namespace Microsoft.Azure.Management.DataFactories.Conversion
                                  {
                                      Type = table.Properties.Type, 
                                      TypeProperties = typeProperties, 
-                                     Availability = table.Properties.Availability, 
+                                     UpdateMode = table.Properties.UpdateMode,
+                                     SlicingModel = table.Properties.SlicingModel, 
                                      CreateTime = table.Properties.CreateTime,
                                      Description = table.Properties.Description, 
                                      LinkedServiceName = table.Properties.LinkedServiceName, 
@@ -84,11 +85,11 @@ namespace Microsoft.Azure.Management.DataFactories.Conversion
 #else
             TableProperties properties = new TableProperties(
                 typeProperties,
-                internalTable.Properties.Availability,
+                internalTable.Properties.UpdateMode,
                 internalTable.Properties.LinkedServiceName)
 #endif
                      {
-                         Availability = internalTable.Properties.Availability,
+                         SlicingModel = internalTable.Properties.SlicingModel,
                          CreateTime = internalTable.Properties.CreateTime,
                          Description = internalTable.Properties.Description,
                          ErrorMessage = internalTable.Properties.ErrorMessage,

@@ -21,6 +21,7 @@
 
 using System;
 using System.Linq;
+using Microsoft.Azure.Management.DataFactories.Common.Models;
 
 namespace Microsoft.Azure.Management.DataFactories.Common.Models
 {
@@ -95,6 +96,17 @@ namespace Microsoft.Azure.Management.DataFactories.Common.Models
         {
             get { return this._retry; }
             set { this._retry = value; }
+        }
+        
+        private ActivitySchedule _schedule;
+        
+        /// <summary>
+        /// Optional. Schedule for activity execution
+        /// </summary>
+        public ActivitySchedule Schedule
+        {
+            get { return this._schedule; }
+            set { this._schedule = value; }
         }
         
         private System.TimeSpan? _timeout;

@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Hyak.Common;
 using Microsoft.Azure.Management.DataFactories.Common.Models;
+using Microsoft.Azure.Management.DataFactories.Core.Models;
 
 namespace Microsoft.Azure.Management.DataFactories.Core.Models
 {
@@ -32,17 +33,6 @@ namespace Microsoft.Azure.Management.DataFactories.Core.Models
     /// </summary>
     public partial class TableProperties
     {
-        private Availability _availability;
-        
-        /// <summary>
-        /// Required. Scheduler of the table.
-        /// </summary>
-        public Availability Availability
-        {
-            get { return this._availability; }
-            set { this._availability = value; }
-        }
-        
         private System.DateTime? _createTime;
         
         /// <summary>
@@ -120,6 +110,17 @@ namespace Microsoft.Azure.Management.DataFactories.Core.Models
             set { this._published = value; }
         }
         
+        private SlicingModel _slicingModel;
+        
+        /// <summary>
+        /// Optional. Slicing model for the table
+        /// </summary>
+        public SlicingModel SlicingModel
+        {
+            get { return this._slicingModel; }
+            set { this._slicingModel = value; }
+        }
+        
         private IList<DataElement> _structure;
         
         /// <summary>
@@ -153,6 +154,17 @@ namespace Microsoft.Azure.Management.DataFactories.Core.Models
         {
             get { return this._typeProperties; }
             set { this._typeProperties = value; }
+        }
+        
+        private string _updateMode;
+        
+        /// <summary>
+        /// Required. update mode
+        /// </summary>
+        public string UpdateMode
+        {
+            get { return this._updateMode; }
+            set { this._updateMode = value; }
         }
         
         /// <summary>

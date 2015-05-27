@@ -20,54 +20,49 @@
 // code is regenerated.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Azure.Management.DataFactories.Common.Models;
+using Hyak.Common;
+using Microsoft.Azure.Management.DataFactories.Core.Models;
 
-namespace Microsoft.Azure.Management.DataFactories.Common.Models
+namespace Microsoft.Azure.Management.DataFactories.Core.Models
 {
     /// <summary>
-    /// Policy of a table.
+    /// SlicingModel
     /// </summary>
-    public partial class Policy
+    public partial class SlicingModel
     {
-        private ExternalTableRetryPolicy _externalTable;
+        private IList<Slicer> _slicers;
         
         /// <summary>
-        /// Optional. External table retry policy.
+        /// Required. List of slicers
         /// </summary>
-        public ExternalTableRetryPolicy ExternalTable
+        public IList<Slicer> Slicers
         {
-            get { return this._externalTable; }
-            set { this._externalTable = value; }
-        }
-        
-        private LatencyPolicy _latency;
-        
-        /// <summary>
-        /// Optional. Latency policy.
-        /// </summary>
-        public LatencyPolicy Latency
-        {
-            get { return this._latency; }
-            set { this._latency = value; }
-        }
-        
-        private ValidationPolicy _validation;
-        
-        /// <summary>
-        /// Optional. Validation policy.
-        /// </summary>
-        public ValidationPolicy Validation
-        {
-            get { return this._validation; }
-            set { this._validation = value; }
+            get { return this._slicers; }
+            set { this._slicers = value; }
         }
         
         /// <summary>
-        /// Initializes a new instance of the Policy class.
+        /// Initializes a new instance of the SlicingModel class.
         /// </summary>
-        public Policy()
+        public SlicingModel()
         {
+            this.Slicers = new LazyList<Slicer>();
+        }
+        
+        /// <summary>
+        /// Initializes a new instance of the SlicingModel class with required
+        /// arguments.
+        /// </summary>
+        public SlicingModel(IList<Slicer> slicers)
+            : this()
+        {
+            if (slicers == null)
+            {
+                throw new ArgumentNullException("slicers");
+            }
+            this.Slicers = slicers;
         }
     }
 }

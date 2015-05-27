@@ -134,17 +134,34 @@ namespace Microsoft.Azure.Management.DataFactories.Core
                 {
                     throw new ArgumentNullException("parameters.Table.Properties");
                 }
-                if (parameters.Table.Properties.Availability == null)
-                {
-                    throw new ArgumentNullException("parameters.Table.Properties.Availability");
-                }
-                if (parameters.Table.Properties.Availability.Frequency == null)
-                {
-                    throw new ArgumentNullException("parameters.Table.Properties.Availability.Frequency");
-                }
                 if (parameters.Table.Properties.LinkedServiceName == null)
                 {
                     throw new ArgumentNullException("parameters.Table.Properties.LinkedServiceName");
+                }
+                if (parameters.Table.Properties.SlicingModel != null)
+                {
+                    if (parameters.Table.Properties.SlicingModel.Slicers == null)
+                    {
+                        throw new ArgumentNullException("parameters.Table.Properties.SlicingModel.Slicers");
+                    }
+                    if (parameters.Table.Properties.SlicingModel.Slicers != null)
+                    {
+                        foreach (Slicer slicersParameterItem in parameters.Table.Properties.SlicingModel.Slicers)
+                        {
+                            if (slicersParameterItem.Name == null)
+                            {
+                                throw new ArgumentNullException("parameters.Table.Properties.SlicingModel.Slicers.Name");
+                            }
+                            if (slicersParameterItem.Name != null && slicersParameterItem.Name.Length > 260)
+                            {
+                                throw new ArgumentOutOfRangeException("parameters.Table.Properties.SlicingModel.Slicers.Name");
+                            }
+                            if (Regex.IsMatch(slicersParameterItem.Name, "^[A-Za-z0-9_][^<>*#.%&:\\\\+?/]*$") == false)
+                            {
+                                throw new ArgumentOutOfRangeException("parameters.Table.Properties.SlicingModel.Slicers.Name");
+                            }
+                        }
+                    }
                 }
                 if (parameters.Table.Properties.Type == null)
                 {
@@ -275,52 +292,52 @@ namespace Microsoft.Azure.Management.DataFactories.Core
                         }
                     }
                     
-                    JObject availabilityValue = new JObject();
-                    propertiesValue["availability"] = availabilityValue;
+                    propertiesValue["updateMode"] = parameters.Table.Properties.UpdateMode.ToString();
                     
-                    availabilityValue["frequency"] = parameters.Table.Properties.Availability.Frequency;
-                    
-                    availabilityValue["interval"] = parameters.Table.Properties.Availability.Interval;
-                    
-                    if (parameters.Table.Properties.Availability.AnchorDateTime != null)
+                    if (parameters.Table.Properties.SlicingModel != null)
                     {
-                        availabilityValue["anchorDateTime"] = parameters.Table.Properties.Availability.AnchorDateTime.Value;
-                    }
-                    
-                    if (parameters.Table.Properties.Availability.Offset != null)
-                    {
-                        availabilityValue["offset"] = parameters.Table.Properties.Availability.Offset.Value.ToString();
-                    }
-                    
-                    if (parameters.Table.Properties.Availability.WaitOnExternal != null)
-                    {
-                        JObject waitOnExternalValue = new JObject();
-                        availabilityValue["waitOnExternal"] = waitOnExternalValue;
+                        JObject slicingModelValue = new JObject();
+                        propertiesValue["slicingModel"] = slicingModelValue;
                         
-                        if (parameters.Table.Properties.Availability.WaitOnExternal.DataDelay != null)
+                        if (parameters.Table.Properties.SlicingModel.Slicers != null)
                         {
-                            waitOnExternalValue["dataDelay"] = parameters.Table.Properties.Availability.WaitOnExternal.DataDelay.Value.ToString();
+                            if (parameters.Table.Properties.SlicingModel.Slicers is ILazyCollection == false || ((ILazyCollection)parameters.Table.Properties.SlicingModel.Slicers).IsInitialized)
+                            {
+                                JArray slicersArray = new JArray();
+                                foreach (Slicer slicersItem in parameters.Table.Properties.SlicingModel.Slicers)
+                                {
+                                    JObject slicerValue = new JObject();
+                                    slicersArray.Add(slicerValue);
+                                    if (slicersItem is TimeSlicer)
+                                    {
+                                        slicerValue["type"] = "TimeSlicer";
+                                        TimeSlicer derived = ((TimeSlicer)slicersItem);
+                                        
+                                        slicerValue["frequency"] = derived.Frequency;
+                                        
+                                        slicerValue["interval"] = derived.Interval;
+                                        
+                                        if (derived.AnchorDateTime != null)
+                                        {
+                                            slicerValue["anchorDateTime"] = derived.AnchorDateTime.Value;
+                                        }
+                                        
+                                        if (derived.Offset != null)
+                                        {
+                                            slicerValue["offset"] = derived.Offset.Value.ToString();
+                                        }
+                                        
+                                        if (derived.Style != null)
+                                        {
+                                            slicerValue["style"] = derived.Style;
+                                        }
+                                        
+                                        slicerValue["name"] = derived.Name;
+                                    }
+                                }
+                                slicingModelValue["slicers"] = slicersArray;
+                            }
                         }
-                        
-                        if (parameters.Table.Properties.Availability.WaitOnExternal.RetryInterval != null)
-                        {
-                            waitOnExternalValue["retryInterval"] = parameters.Table.Properties.Availability.WaitOnExternal.RetryInterval.Value.ToString();
-                        }
-                        
-                        if (parameters.Table.Properties.Availability.WaitOnExternal.RetryTimeout != null)
-                        {
-                            waitOnExternalValue["retryTimeout"] = parameters.Table.Properties.Availability.WaitOnExternal.RetryTimeout.Value.ToString();
-                        }
-                        
-                        if (parameters.Table.Properties.Availability.WaitOnExternal.MaximumRetry != null)
-                        {
-                            waitOnExternalValue["maximumRetry"] = parameters.Table.Properties.Availability.WaitOnExternal.MaximumRetry.Value;
-                        }
-                    }
-                    
-                    if (parameters.Table.Properties.Availability.Style != null)
-                    {
-                        availabilityValue["style"] = parameters.Table.Properties.Availability.Style;
                     }
                     
                     if (parameters.Table.Properties.Policy != null)
@@ -357,6 +374,32 @@ namespace Microsoft.Azure.Management.DataFactories.Core
                             if (parameters.Table.Properties.Policy.Latency.LatencyLength != null)
                             {
                                 latencyValue["latencyLength"] = parameters.Table.Properties.Policy.Latency.LatencyLength.Value.ToString();
+                            }
+                        }
+                        
+                        if (parameters.Table.Properties.Policy.ExternalTable != null)
+                        {
+                            JObject externalTableValue = new JObject();
+                            policyValue["externalTable"] = externalTableValue;
+                            
+                            if (parameters.Table.Properties.Policy.ExternalTable.DataDelay != null)
+                            {
+                                externalTableValue["dataDelay"] = parameters.Table.Properties.Policy.ExternalTable.DataDelay.Value.ToString();
+                            }
+                            
+                            if (parameters.Table.Properties.Policy.ExternalTable.RetryInterval != null)
+                            {
+                                externalTableValue["retryInterval"] = parameters.Table.Properties.Policy.ExternalTable.RetryInterval.Value.ToString();
+                            }
+                            
+                            if (parameters.Table.Properties.Policy.ExternalTable.RetryTimeout != null)
+                            {
+                                externalTableValue["retryTimeout"] = parameters.Table.Properties.Policy.ExternalTable.RetryTimeout.Value.ToString();
+                            }
+                            
+                            if (parameters.Table.Properties.Policy.ExternalTable.MaximumRetry != null)
+                            {
+                                externalTableValue["maximumRetry"] = parameters.Table.Properties.Policy.ExternalTable.MaximumRetry.Value;
                             }
                         }
                     }
@@ -510,80 +553,73 @@ namespace Microsoft.Azure.Management.DataFactories.Core
                                     }
                                 }
                                 
-                                JToken availabilityValue2 = propertiesValue2["availability"];
-                                if (availabilityValue2 != null && availabilityValue2.Type != JTokenType.Null)
+                                JToken updateModeValue = propertiesValue2["updateMode"];
+                                if (updateModeValue != null && updateModeValue.Type != JTokenType.Null)
                                 {
-                                    Availability availabilityInstance = new Availability();
-                                    propertiesInstance.Availability = availabilityInstance;
+                                    string updateModeInstance = ((string)updateModeValue);
+                                    propertiesInstance.UpdateMode = updateModeInstance;
+                                }
+                                
+                                JToken slicingModelValue2 = propertiesValue2["slicingModel"];
+                                if (slicingModelValue2 != null && slicingModelValue2.Type != JTokenType.Null)
+                                {
+                                    SlicingModel slicingModelInstance = new SlicingModel();
+                                    propertiesInstance.SlicingModel = slicingModelInstance;
                                     
-                                    JToken frequencyValue = availabilityValue2["frequency"];
-                                    if (frequencyValue != null && frequencyValue.Type != JTokenType.Null)
+                                    JToken slicersArray2 = slicingModelValue2["slicers"];
+                                    if (slicersArray2 != null && slicersArray2.Type != JTokenType.Null)
                                     {
-                                        string frequencyInstance = ((string)frequencyValue);
-                                        availabilityInstance.Frequency = frequencyInstance;
-                                    }
-                                    
-                                    JToken intervalValue = availabilityValue2["interval"];
-                                    if (intervalValue != null && intervalValue.Type != JTokenType.Null)
-                                    {
-                                        uint intervalInstance = ((uint)intervalValue);
-                                        availabilityInstance.Interval = intervalInstance;
-                                    }
-                                    
-                                    JToken anchorDateTimeValue = availabilityValue2["anchorDateTime"];
-                                    if (anchorDateTimeValue != null && anchorDateTimeValue.Type != JTokenType.Null)
-                                    {
-                                        DateTime anchorDateTimeInstance = ((DateTime)anchorDateTimeValue);
-                                        availabilityInstance.AnchorDateTime = anchorDateTimeInstance;
-                                    }
-                                    
-                                    JToken offsetValue = availabilityValue2["offset"];
-                                    if (offsetValue != null && offsetValue.Type != JTokenType.Null)
-                                    {
-                                        TimeSpan offsetInstance = TimeSpan.Parse(((string)offsetValue), CultureInfo.InvariantCulture);
-                                        availabilityInstance.Offset = offsetInstance;
-                                    }
-                                    
-                                    JToken waitOnExternalValue2 = availabilityValue2["waitOnExternal"];
-                                    if (waitOnExternalValue2 != null && waitOnExternalValue2.Type != JTokenType.Null)
-                                    {
-                                        WaitOnExternal waitOnExternalInstance = new WaitOnExternal();
-                                        availabilityInstance.WaitOnExternal = waitOnExternalInstance;
-                                        
-                                        JToken dataDelayValue = waitOnExternalValue2["dataDelay"];
-                                        if (dataDelayValue != null && dataDelayValue.Type != JTokenType.Null)
+                                        foreach (JToken slicersValue in ((JArray)slicersArray2))
                                         {
-                                            TimeSpan dataDelayInstance = TimeSpan.Parse(((string)dataDelayValue), CultureInfo.InvariantCulture);
-                                            waitOnExternalInstance.DataDelay = dataDelayInstance;
+                                            string typeName = ((string)slicersValue["type"]);
+                                            if (typeName == "TimeSlicer")
+                                            {
+                                                TimeSlicer timeSlicerInstance = new TimeSlicer();
+                                                
+                                                JToken frequencyValue = slicersValue["frequency"];
+                                                if (frequencyValue != null && frequencyValue.Type != JTokenType.Null)
+                                                {
+                                                    string frequencyInstance = ((string)frequencyValue);
+                                                    timeSlicerInstance.Frequency = frequencyInstance;
+                                                }
+                                                
+                                                JToken intervalValue = slicersValue["interval"];
+                                                if (intervalValue != null && intervalValue.Type != JTokenType.Null)
+                                                {
+                                                    uint intervalInstance = ((uint)intervalValue);
+                                                    timeSlicerInstance.Interval = intervalInstance;
+                                                }
+                                                
+                                                JToken anchorDateTimeValue = slicersValue["anchorDateTime"];
+                                                if (anchorDateTimeValue != null && anchorDateTimeValue.Type != JTokenType.Null)
+                                                {
+                                                    DateTime anchorDateTimeInstance = ((DateTime)anchorDateTimeValue);
+                                                    timeSlicerInstance.AnchorDateTime = anchorDateTimeInstance;
+                                                }
+                                                
+                                                JToken offsetValue = slicersValue["offset"];
+                                                if (offsetValue != null && offsetValue.Type != JTokenType.Null)
+                                                {
+                                                    TimeSpan offsetInstance = TimeSpan.Parse(((string)offsetValue), CultureInfo.InvariantCulture);
+                                                    timeSlicerInstance.Offset = offsetInstance;
+                                                }
+                                                
+                                                JToken styleValue = slicersValue["style"];
+                                                if (styleValue != null && styleValue.Type != JTokenType.Null)
+                                                {
+                                                    string styleInstance = ((string)styleValue);
+                                                    timeSlicerInstance.Style = styleInstance;
+                                                }
+                                                
+                                                JToken nameValue3 = slicersValue["name"];
+                                                if (nameValue3 != null && nameValue3.Type != JTokenType.Null)
+                                                {
+                                                    string nameInstance3 = ((string)nameValue3);
+                                                    timeSlicerInstance.Name = nameInstance3;
+                                                }
+                                                slicingModelInstance.Slicers.Add(timeSlicerInstance);
+                                            }
                                         }
-                                        
-                                        JToken retryIntervalValue = waitOnExternalValue2["retryInterval"];
-                                        if (retryIntervalValue != null && retryIntervalValue.Type != JTokenType.Null)
-                                        {
-                                            TimeSpan retryIntervalInstance = TimeSpan.Parse(((string)retryIntervalValue), CultureInfo.InvariantCulture);
-                                            waitOnExternalInstance.RetryInterval = retryIntervalInstance;
-                                        }
-                                        
-                                        JToken retryTimeoutValue = waitOnExternalValue2["retryTimeout"];
-                                        if (retryTimeoutValue != null && retryTimeoutValue.Type != JTokenType.Null)
-                                        {
-                                            TimeSpan retryTimeoutInstance = TimeSpan.Parse(((string)retryTimeoutValue), CultureInfo.InvariantCulture);
-                                            waitOnExternalInstance.RetryTimeout = retryTimeoutInstance;
-                                        }
-                                        
-                                        JToken maximumRetryValue = waitOnExternalValue2["maximumRetry"];
-                                        if (maximumRetryValue != null && maximumRetryValue.Type != JTokenType.Null)
-                                        {
-                                            int maximumRetryInstance = ((int)maximumRetryValue);
-                                            waitOnExternalInstance.MaximumRetry = maximumRetryInstance;
-                                        }
-                                    }
-                                    
-                                    JToken styleValue = availabilityValue2["style"];
-                                    if (styleValue != null && styleValue.Type != JTokenType.Null)
-                                    {
-                                        string styleInstance = ((string)styleValue);
-                                        availabilityInstance.Style = styleInstance;
                                     }
                                 }
                                 
@@ -632,6 +668,41 @@ namespace Microsoft.Azure.Management.DataFactories.Core
                                         {
                                             TimeSpan latencyLengthInstance = TimeSpan.Parse(((string)latencyLengthValue), CultureInfo.InvariantCulture);
                                             latencyInstance.LatencyLength = latencyLengthInstance;
+                                        }
+                                    }
+                                    
+                                    JToken externalTableValue2 = policyValue2["externalTable"];
+                                    if (externalTableValue2 != null && externalTableValue2.Type != JTokenType.Null)
+                                    {
+                                        ExternalTableRetryPolicy externalTableInstance = new ExternalTableRetryPolicy();
+                                        policyInstance.ExternalTable = externalTableInstance;
+                                        
+                                        JToken dataDelayValue = externalTableValue2["dataDelay"];
+                                        if (dataDelayValue != null && dataDelayValue.Type != JTokenType.Null)
+                                        {
+                                            TimeSpan dataDelayInstance = TimeSpan.Parse(((string)dataDelayValue), CultureInfo.InvariantCulture);
+                                            externalTableInstance.DataDelay = dataDelayInstance;
+                                        }
+                                        
+                                        JToken retryIntervalValue = externalTableValue2["retryInterval"];
+                                        if (retryIntervalValue != null && retryIntervalValue.Type != JTokenType.Null)
+                                        {
+                                            TimeSpan retryIntervalInstance = TimeSpan.Parse(((string)retryIntervalValue), CultureInfo.InvariantCulture);
+                                            externalTableInstance.RetryInterval = retryIntervalInstance;
+                                        }
+                                        
+                                        JToken retryTimeoutValue = externalTableValue2["retryTimeout"];
+                                        if (retryTimeoutValue != null && retryTimeoutValue.Type != JTokenType.Null)
+                                        {
+                                            TimeSpan retryTimeoutInstance = TimeSpan.Parse(((string)retryTimeoutValue), CultureInfo.InvariantCulture);
+                                            externalTableInstance.RetryTimeout = retryTimeoutInstance;
+                                        }
+                                        
+                                        JToken maximumRetryValue = externalTableValue2["maximumRetry"];
+                                        if (maximumRetryValue != null && maximumRetryValue.Type != JTokenType.Null)
+                                        {
+                                            int maximumRetryInstance = ((int)maximumRetryValue);
+                                            externalTableInstance.MaximumRetry = maximumRetryInstance;
                                         }
                                     }
                                 }
@@ -957,80 +1028,73 @@ namespace Microsoft.Azure.Management.DataFactories.Core
                                     }
                                 }
                                 
-                                JToken availabilityValue = propertiesValue["availability"];
-                                if (availabilityValue != null && availabilityValue.Type != JTokenType.Null)
+                                JToken updateModeValue = propertiesValue["updateMode"];
+                                if (updateModeValue != null && updateModeValue.Type != JTokenType.Null)
                                 {
-                                    Availability availabilityInstance = new Availability();
-                                    propertiesInstance.Availability = availabilityInstance;
+                                    string updateModeInstance = ((string)updateModeValue);
+                                    propertiesInstance.UpdateMode = updateModeInstance;
+                                }
+                                
+                                JToken slicingModelValue = propertiesValue["slicingModel"];
+                                if (slicingModelValue != null && slicingModelValue.Type != JTokenType.Null)
+                                {
+                                    SlicingModel slicingModelInstance = new SlicingModel();
+                                    propertiesInstance.SlicingModel = slicingModelInstance;
                                     
-                                    JToken frequencyValue = availabilityValue["frequency"];
-                                    if (frequencyValue != null && frequencyValue.Type != JTokenType.Null)
+                                    JToken slicersArray = slicingModelValue["slicers"];
+                                    if (slicersArray != null && slicersArray.Type != JTokenType.Null)
                                     {
-                                        string frequencyInstance = ((string)frequencyValue);
-                                        availabilityInstance.Frequency = frequencyInstance;
-                                    }
-                                    
-                                    JToken intervalValue = availabilityValue["interval"];
-                                    if (intervalValue != null && intervalValue.Type != JTokenType.Null)
-                                    {
-                                        uint intervalInstance = ((uint)intervalValue);
-                                        availabilityInstance.Interval = intervalInstance;
-                                    }
-                                    
-                                    JToken anchorDateTimeValue = availabilityValue["anchorDateTime"];
-                                    if (anchorDateTimeValue != null && anchorDateTimeValue.Type != JTokenType.Null)
-                                    {
-                                        DateTime anchorDateTimeInstance = ((DateTime)anchorDateTimeValue);
-                                        availabilityInstance.AnchorDateTime = anchorDateTimeInstance;
-                                    }
-                                    
-                                    JToken offsetValue = availabilityValue["offset"];
-                                    if (offsetValue != null && offsetValue.Type != JTokenType.Null)
-                                    {
-                                        TimeSpan offsetInstance = TimeSpan.Parse(((string)offsetValue), CultureInfo.InvariantCulture);
-                                        availabilityInstance.Offset = offsetInstance;
-                                    }
-                                    
-                                    JToken waitOnExternalValue = availabilityValue["waitOnExternal"];
-                                    if (waitOnExternalValue != null && waitOnExternalValue.Type != JTokenType.Null)
-                                    {
-                                        WaitOnExternal waitOnExternalInstance = new WaitOnExternal();
-                                        availabilityInstance.WaitOnExternal = waitOnExternalInstance;
-                                        
-                                        JToken dataDelayValue = waitOnExternalValue["dataDelay"];
-                                        if (dataDelayValue != null && dataDelayValue.Type != JTokenType.Null)
+                                        foreach (JToken slicersValue in ((JArray)slicersArray))
                                         {
-                                            TimeSpan dataDelayInstance = TimeSpan.Parse(((string)dataDelayValue), CultureInfo.InvariantCulture);
-                                            waitOnExternalInstance.DataDelay = dataDelayInstance;
+                                            string typeName = ((string)slicersValue["type"]);
+                                            if (typeName == "TimeSlicer")
+                                            {
+                                                TimeSlicer timeSlicerInstance = new TimeSlicer();
+                                                
+                                                JToken frequencyValue = slicersValue["frequency"];
+                                                if (frequencyValue != null && frequencyValue.Type != JTokenType.Null)
+                                                {
+                                                    string frequencyInstance = ((string)frequencyValue);
+                                                    timeSlicerInstance.Frequency = frequencyInstance;
+                                                }
+                                                
+                                                JToken intervalValue = slicersValue["interval"];
+                                                if (intervalValue != null && intervalValue.Type != JTokenType.Null)
+                                                {
+                                                    uint intervalInstance = ((uint)intervalValue);
+                                                    timeSlicerInstance.Interval = intervalInstance;
+                                                }
+                                                
+                                                JToken anchorDateTimeValue = slicersValue["anchorDateTime"];
+                                                if (anchorDateTimeValue != null && anchorDateTimeValue.Type != JTokenType.Null)
+                                                {
+                                                    DateTime anchorDateTimeInstance = ((DateTime)anchorDateTimeValue);
+                                                    timeSlicerInstance.AnchorDateTime = anchorDateTimeInstance;
+                                                }
+                                                
+                                                JToken offsetValue = slicersValue["offset"];
+                                                if (offsetValue != null && offsetValue.Type != JTokenType.Null)
+                                                {
+                                                    TimeSpan offsetInstance = TimeSpan.Parse(((string)offsetValue), CultureInfo.InvariantCulture);
+                                                    timeSlicerInstance.Offset = offsetInstance;
+                                                }
+                                                
+                                                JToken styleValue = slicersValue["style"];
+                                                if (styleValue != null && styleValue.Type != JTokenType.Null)
+                                                {
+                                                    string styleInstance = ((string)styleValue);
+                                                    timeSlicerInstance.Style = styleInstance;
+                                                }
+                                                
+                                                JToken nameValue3 = slicersValue["name"];
+                                                if (nameValue3 != null && nameValue3.Type != JTokenType.Null)
+                                                {
+                                                    string nameInstance3 = ((string)nameValue3);
+                                                    timeSlicerInstance.Name = nameInstance3;
+                                                }
+                                                slicingModelInstance.Slicers.Add(timeSlicerInstance);
+                                            }
                                         }
-                                        
-                                        JToken retryIntervalValue = waitOnExternalValue["retryInterval"];
-                                        if (retryIntervalValue != null && retryIntervalValue.Type != JTokenType.Null)
-                                        {
-                                            TimeSpan retryIntervalInstance = TimeSpan.Parse(((string)retryIntervalValue), CultureInfo.InvariantCulture);
-                                            waitOnExternalInstance.RetryInterval = retryIntervalInstance;
-                                        }
-                                        
-                                        JToken retryTimeoutValue = waitOnExternalValue["retryTimeout"];
-                                        if (retryTimeoutValue != null && retryTimeoutValue.Type != JTokenType.Null)
-                                        {
-                                            TimeSpan retryTimeoutInstance = TimeSpan.Parse(((string)retryTimeoutValue), CultureInfo.InvariantCulture);
-                                            waitOnExternalInstance.RetryTimeout = retryTimeoutInstance;
-                                        }
-                                        
-                                        JToken maximumRetryValue = waitOnExternalValue["maximumRetry"];
-                                        if (maximumRetryValue != null && maximumRetryValue.Type != JTokenType.Null)
-                                        {
-                                            int maximumRetryInstance = ((int)maximumRetryValue);
-                                            waitOnExternalInstance.MaximumRetry = maximumRetryInstance;
-                                        }
-                                    }
-                                    
-                                    JToken styleValue = availabilityValue["style"];
-                                    if (styleValue != null && styleValue.Type != JTokenType.Null)
-                                    {
-                                        string styleInstance = ((string)styleValue);
-                                        availabilityInstance.Style = styleInstance;
                                     }
                                 }
                                 
@@ -1079,6 +1143,41 @@ namespace Microsoft.Azure.Management.DataFactories.Core
                                         {
                                             TimeSpan latencyLengthInstance = TimeSpan.Parse(((string)latencyLengthValue), CultureInfo.InvariantCulture);
                                             latencyInstance.LatencyLength = latencyLengthInstance;
+                                        }
+                                    }
+                                    
+                                    JToken externalTableValue = policyValue["externalTable"];
+                                    if (externalTableValue != null && externalTableValue.Type != JTokenType.Null)
+                                    {
+                                        ExternalTableRetryPolicy externalTableInstance = new ExternalTableRetryPolicy();
+                                        policyInstance.ExternalTable = externalTableInstance;
+                                        
+                                        JToken dataDelayValue = externalTableValue["dataDelay"];
+                                        if (dataDelayValue != null && dataDelayValue.Type != JTokenType.Null)
+                                        {
+                                            TimeSpan dataDelayInstance = TimeSpan.Parse(((string)dataDelayValue), CultureInfo.InvariantCulture);
+                                            externalTableInstance.DataDelay = dataDelayInstance;
+                                        }
+                                        
+                                        JToken retryIntervalValue = externalTableValue["retryInterval"];
+                                        if (retryIntervalValue != null && retryIntervalValue.Type != JTokenType.Null)
+                                        {
+                                            TimeSpan retryIntervalInstance = TimeSpan.Parse(((string)retryIntervalValue), CultureInfo.InvariantCulture);
+                                            externalTableInstance.RetryInterval = retryIntervalInstance;
+                                        }
+                                        
+                                        JToken retryTimeoutValue = externalTableValue["retryTimeout"];
+                                        if (retryTimeoutValue != null && retryTimeoutValue.Type != JTokenType.Null)
+                                        {
+                                            TimeSpan retryTimeoutInstance = TimeSpan.Parse(((string)retryTimeoutValue), CultureInfo.InvariantCulture);
+                                            externalTableInstance.RetryTimeout = retryTimeoutInstance;
+                                        }
+                                        
+                                        JToken maximumRetryValue = externalTableValue["maximumRetry"];
+                                        if (maximumRetryValue != null && maximumRetryValue.Type != JTokenType.Null)
+                                        {
+                                            int maximumRetryInstance = ((int)maximumRetryValue);
+                                            externalTableInstance.MaximumRetry = maximumRetryInstance;
                                         }
                                     }
                                 }
@@ -1309,11 +1408,11 @@ namespace Microsoft.Azure.Management.DataFactories.Core
                     {
                         result.Status = OperationStatus.Failed;
                     }
-                    if (statusCode == HttpStatusCode.NoContent)
+                    if (statusCode == HttpStatusCode.OK)
                     {
                         result.Status = OperationStatus.Succeeded;
                     }
-                    if (statusCode == HttpStatusCode.OK)
+                    if (statusCode == HttpStatusCode.NoContent)
                     {
                         result.Status = OperationStatus.Succeeded;
                     }
@@ -1797,80 +1896,73 @@ namespace Microsoft.Azure.Management.DataFactories.Core
                                     }
                                 }
                                 
-                                JToken availabilityValue = propertiesValue["availability"];
-                                if (availabilityValue != null && availabilityValue.Type != JTokenType.Null)
+                                JToken updateModeValue = propertiesValue["updateMode"];
+                                if (updateModeValue != null && updateModeValue.Type != JTokenType.Null)
                                 {
-                                    Availability availabilityInstance = new Availability();
-                                    propertiesInstance.Availability = availabilityInstance;
+                                    string updateModeInstance = ((string)updateModeValue);
+                                    propertiesInstance.UpdateMode = updateModeInstance;
+                                }
+                                
+                                JToken slicingModelValue = propertiesValue["slicingModel"];
+                                if (slicingModelValue != null && slicingModelValue.Type != JTokenType.Null)
+                                {
+                                    SlicingModel slicingModelInstance = new SlicingModel();
+                                    propertiesInstance.SlicingModel = slicingModelInstance;
                                     
-                                    JToken frequencyValue = availabilityValue["frequency"];
-                                    if (frequencyValue != null && frequencyValue.Type != JTokenType.Null)
+                                    JToken slicersArray = slicingModelValue["slicers"];
+                                    if (slicersArray != null && slicersArray.Type != JTokenType.Null)
                                     {
-                                        string frequencyInstance = ((string)frequencyValue);
-                                        availabilityInstance.Frequency = frequencyInstance;
-                                    }
-                                    
-                                    JToken intervalValue = availabilityValue["interval"];
-                                    if (intervalValue != null && intervalValue.Type != JTokenType.Null)
-                                    {
-                                        uint intervalInstance = ((uint)intervalValue);
-                                        availabilityInstance.Interval = intervalInstance;
-                                    }
-                                    
-                                    JToken anchorDateTimeValue = availabilityValue["anchorDateTime"];
-                                    if (anchorDateTimeValue != null && anchorDateTimeValue.Type != JTokenType.Null)
-                                    {
-                                        DateTime anchorDateTimeInstance = ((DateTime)anchorDateTimeValue);
-                                        availabilityInstance.AnchorDateTime = anchorDateTimeInstance;
-                                    }
-                                    
-                                    JToken offsetValue = availabilityValue["offset"];
-                                    if (offsetValue != null && offsetValue.Type != JTokenType.Null)
-                                    {
-                                        TimeSpan offsetInstance = TimeSpan.Parse(((string)offsetValue), CultureInfo.InvariantCulture);
-                                        availabilityInstance.Offset = offsetInstance;
-                                    }
-                                    
-                                    JToken waitOnExternalValue = availabilityValue["waitOnExternal"];
-                                    if (waitOnExternalValue != null && waitOnExternalValue.Type != JTokenType.Null)
-                                    {
-                                        WaitOnExternal waitOnExternalInstance = new WaitOnExternal();
-                                        availabilityInstance.WaitOnExternal = waitOnExternalInstance;
-                                        
-                                        JToken dataDelayValue = waitOnExternalValue["dataDelay"];
-                                        if (dataDelayValue != null && dataDelayValue.Type != JTokenType.Null)
+                                        foreach (JToken slicersValue in ((JArray)slicersArray))
                                         {
-                                            TimeSpan dataDelayInstance = TimeSpan.Parse(((string)dataDelayValue), CultureInfo.InvariantCulture);
-                                            waitOnExternalInstance.DataDelay = dataDelayInstance;
+                                            string typeName = ((string)slicersValue["type"]);
+                                            if (typeName == "TimeSlicer")
+                                            {
+                                                TimeSlicer timeSlicerInstance = new TimeSlicer();
+                                                
+                                                JToken frequencyValue = slicersValue["frequency"];
+                                                if (frequencyValue != null && frequencyValue.Type != JTokenType.Null)
+                                                {
+                                                    string frequencyInstance = ((string)frequencyValue);
+                                                    timeSlicerInstance.Frequency = frequencyInstance;
+                                                }
+                                                
+                                                JToken intervalValue = slicersValue["interval"];
+                                                if (intervalValue != null && intervalValue.Type != JTokenType.Null)
+                                                {
+                                                    uint intervalInstance = ((uint)intervalValue);
+                                                    timeSlicerInstance.Interval = intervalInstance;
+                                                }
+                                                
+                                                JToken anchorDateTimeValue = slicersValue["anchorDateTime"];
+                                                if (anchorDateTimeValue != null && anchorDateTimeValue.Type != JTokenType.Null)
+                                                {
+                                                    DateTime anchorDateTimeInstance = ((DateTime)anchorDateTimeValue);
+                                                    timeSlicerInstance.AnchorDateTime = anchorDateTimeInstance;
+                                                }
+                                                
+                                                JToken offsetValue = slicersValue["offset"];
+                                                if (offsetValue != null && offsetValue.Type != JTokenType.Null)
+                                                {
+                                                    TimeSpan offsetInstance = TimeSpan.Parse(((string)offsetValue), CultureInfo.InvariantCulture);
+                                                    timeSlicerInstance.Offset = offsetInstance;
+                                                }
+                                                
+                                                JToken styleValue = slicersValue["style"];
+                                                if (styleValue != null && styleValue.Type != JTokenType.Null)
+                                                {
+                                                    string styleInstance = ((string)styleValue);
+                                                    timeSlicerInstance.Style = styleInstance;
+                                                }
+                                                
+                                                JToken nameValue3 = slicersValue["name"];
+                                                if (nameValue3 != null && nameValue3.Type != JTokenType.Null)
+                                                {
+                                                    string nameInstance3 = ((string)nameValue3);
+                                                    timeSlicerInstance.Name = nameInstance3;
+                                                }
+                                                slicingModelInstance.Slicers.Add(timeSlicerInstance);
+                                            }
                                         }
-                                        
-                                        JToken retryIntervalValue = waitOnExternalValue["retryInterval"];
-                                        if (retryIntervalValue != null && retryIntervalValue.Type != JTokenType.Null)
-                                        {
-                                            TimeSpan retryIntervalInstance = TimeSpan.Parse(((string)retryIntervalValue), CultureInfo.InvariantCulture);
-                                            waitOnExternalInstance.RetryInterval = retryIntervalInstance;
-                                        }
-                                        
-                                        JToken retryTimeoutValue = waitOnExternalValue["retryTimeout"];
-                                        if (retryTimeoutValue != null && retryTimeoutValue.Type != JTokenType.Null)
-                                        {
-                                            TimeSpan retryTimeoutInstance = TimeSpan.Parse(((string)retryTimeoutValue), CultureInfo.InvariantCulture);
-                                            waitOnExternalInstance.RetryTimeout = retryTimeoutInstance;
-                                        }
-                                        
-                                        JToken maximumRetryValue = waitOnExternalValue["maximumRetry"];
-                                        if (maximumRetryValue != null && maximumRetryValue.Type != JTokenType.Null)
-                                        {
-                                            int maximumRetryInstance = ((int)maximumRetryValue);
-                                            waitOnExternalInstance.MaximumRetry = maximumRetryInstance;
-                                        }
-                                    }
-                                    
-                                    JToken styleValue = availabilityValue["style"];
-                                    if (styleValue != null && styleValue.Type != JTokenType.Null)
-                                    {
-                                        string styleInstance = ((string)styleValue);
-                                        availabilityInstance.Style = styleInstance;
                                     }
                                 }
                                 
@@ -1919,6 +2011,41 @@ namespace Microsoft.Azure.Management.DataFactories.Core
                                         {
                                             TimeSpan latencyLengthInstance = TimeSpan.Parse(((string)latencyLengthValue), CultureInfo.InvariantCulture);
                                             latencyInstance.LatencyLength = latencyLengthInstance;
+                                        }
+                                    }
+                                    
+                                    JToken externalTableValue = policyValue["externalTable"];
+                                    if (externalTableValue != null && externalTableValue.Type != JTokenType.Null)
+                                    {
+                                        ExternalTableRetryPolicy externalTableInstance = new ExternalTableRetryPolicy();
+                                        policyInstance.ExternalTable = externalTableInstance;
+                                        
+                                        JToken dataDelayValue = externalTableValue["dataDelay"];
+                                        if (dataDelayValue != null && dataDelayValue.Type != JTokenType.Null)
+                                        {
+                                            TimeSpan dataDelayInstance = TimeSpan.Parse(((string)dataDelayValue), CultureInfo.InvariantCulture);
+                                            externalTableInstance.DataDelay = dataDelayInstance;
+                                        }
+                                        
+                                        JToken retryIntervalValue = externalTableValue["retryInterval"];
+                                        if (retryIntervalValue != null && retryIntervalValue.Type != JTokenType.Null)
+                                        {
+                                            TimeSpan retryIntervalInstance = TimeSpan.Parse(((string)retryIntervalValue), CultureInfo.InvariantCulture);
+                                            externalTableInstance.RetryInterval = retryIntervalInstance;
+                                        }
+                                        
+                                        JToken retryTimeoutValue = externalTableValue["retryTimeout"];
+                                        if (retryTimeoutValue != null && retryTimeoutValue.Type != JTokenType.Null)
+                                        {
+                                            TimeSpan retryTimeoutInstance = TimeSpan.Parse(((string)retryTimeoutValue), CultureInfo.InvariantCulture);
+                                            externalTableInstance.RetryTimeout = retryTimeoutInstance;
+                                        }
+                                        
+                                        JToken maximumRetryValue = externalTableValue["maximumRetry"];
+                                        if (maximumRetryValue != null && maximumRetryValue.Type != JTokenType.Null)
+                                        {
+                                            int maximumRetryInstance = ((int)maximumRetryValue);
+                                            externalTableInstance.MaximumRetry = maximumRetryInstance;
                                         }
                                     }
                                 }
@@ -2156,80 +2283,73 @@ namespace Microsoft.Azure.Management.DataFactories.Core
                                     }
                                 }
                                 
-                                JToken availabilityValue = propertiesValue["availability"];
-                                if (availabilityValue != null && availabilityValue.Type != JTokenType.Null)
+                                JToken updateModeValue = propertiesValue["updateMode"];
+                                if (updateModeValue != null && updateModeValue.Type != JTokenType.Null)
                                 {
-                                    Availability availabilityInstance = new Availability();
-                                    propertiesInstance.Availability = availabilityInstance;
+                                    string updateModeInstance = ((string)updateModeValue);
+                                    propertiesInstance.UpdateMode = updateModeInstance;
+                                }
+                                
+                                JToken slicingModelValue = propertiesValue["slicingModel"];
+                                if (slicingModelValue != null && slicingModelValue.Type != JTokenType.Null)
+                                {
+                                    SlicingModel slicingModelInstance = new SlicingModel();
+                                    propertiesInstance.SlicingModel = slicingModelInstance;
                                     
-                                    JToken frequencyValue = availabilityValue["frequency"];
-                                    if (frequencyValue != null && frequencyValue.Type != JTokenType.Null)
+                                    JToken slicersArray = slicingModelValue["slicers"];
+                                    if (slicersArray != null && slicersArray.Type != JTokenType.Null)
                                     {
-                                        string frequencyInstance = ((string)frequencyValue);
-                                        availabilityInstance.Frequency = frequencyInstance;
-                                    }
-                                    
-                                    JToken intervalValue = availabilityValue["interval"];
-                                    if (intervalValue != null && intervalValue.Type != JTokenType.Null)
-                                    {
-                                        uint intervalInstance = ((uint)intervalValue);
-                                        availabilityInstance.Interval = intervalInstance;
-                                    }
-                                    
-                                    JToken anchorDateTimeValue = availabilityValue["anchorDateTime"];
-                                    if (anchorDateTimeValue != null && anchorDateTimeValue.Type != JTokenType.Null)
-                                    {
-                                        DateTime anchorDateTimeInstance = ((DateTime)anchorDateTimeValue);
-                                        availabilityInstance.AnchorDateTime = anchorDateTimeInstance;
-                                    }
-                                    
-                                    JToken offsetValue = availabilityValue["offset"];
-                                    if (offsetValue != null && offsetValue.Type != JTokenType.Null)
-                                    {
-                                        TimeSpan offsetInstance = TimeSpan.Parse(((string)offsetValue), CultureInfo.InvariantCulture);
-                                        availabilityInstance.Offset = offsetInstance;
-                                    }
-                                    
-                                    JToken waitOnExternalValue = availabilityValue["waitOnExternal"];
-                                    if (waitOnExternalValue != null && waitOnExternalValue.Type != JTokenType.Null)
-                                    {
-                                        WaitOnExternal waitOnExternalInstance = new WaitOnExternal();
-                                        availabilityInstance.WaitOnExternal = waitOnExternalInstance;
-                                        
-                                        JToken dataDelayValue = waitOnExternalValue["dataDelay"];
-                                        if (dataDelayValue != null && dataDelayValue.Type != JTokenType.Null)
+                                        foreach (JToken slicersValue in ((JArray)slicersArray))
                                         {
-                                            TimeSpan dataDelayInstance = TimeSpan.Parse(((string)dataDelayValue), CultureInfo.InvariantCulture);
-                                            waitOnExternalInstance.DataDelay = dataDelayInstance;
+                                            string typeName = ((string)slicersValue["type"]);
+                                            if (typeName == "TimeSlicer")
+                                            {
+                                                TimeSlicer timeSlicerInstance = new TimeSlicer();
+                                                
+                                                JToken frequencyValue = slicersValue["frequency"];
+                                                if (frequencyValue != null && frequencyValue.Type != JTokenType.Null)
+                                                {
+                                                    string frequencyInstance = ((string)frequencyValue);
+                                                    timeSlicerInstance.Frequency = frequencyInstance;
+                                                }
+                                                
+                                                JToken intervalValue = slicersValue["interval"];
+                                                if (intervalValue != null && intervalValue.Type != JTokenType.Null)
+                                                {
+                                                    uint intervalInstance = ((uint)intervalValue);
+                                                    timeSlicerInstance.Interval = intervalInstance;
+                                                }
+                                                
+                                                JToken anchorDateTimeValue = slicersValue["anchorDateTime"];
+                                                if (anchorDateTimeValue != null && anchorDateTimeValue.Type != JTokenType.Null)
+                                                {
+                                                    DateTime anchorDateTimeInstance = ((DateTime)anchorDateTimeValue);
+                                                    timeSlicerInstance.AnchorDateTime = anchorDateTimeInstance;
+                                                }
+                                                
+                                                JToken offsetValue = slicersValue["offset"];
+                                                if (offsetValue != null && offsetValue.Type != JTokenType.Null)
+                                                {
+                                                    TimeSpan offsetInstance = TimeSpan.Parse(((string)offsetValue), CultureInfo.InvariantCulture);
+                                                    timeSlicerInstance.Offset = offsetInstance;
+                                                }
+                                                
+                                                JToken styleValue = slicersValue["style"];
+                                                if (styleValue != null && styleValue.Type != JTokenType.Null)
+                                                {
+                                                    string styleInstance = ((string)styleValue);
+                                                    timeSlicerInstance.Style = styleInstance;
+                                                }
+                                                
+                                                JToken nameValue3 = slicersValue["name"];
+                                                if (nameValue3 != null && nameValue3.Type != JTokenType.Null)
+                                                {
+                                                    string nameInstance3 = ((string)nameValue3);
+                                                    timeSlicerInstance.Name = nameInstance3;
+                                                }
+                                                slicingModelInstance.Slicers.Add(timeSlicerInstance);
+                                            }
                                         }
-                                        
-                                        JToken retryIntervalValue = waitOnExternalValue["retryInterval"];
-                                        if (retryIntervalValue != null && retryIntervalValue.Type != JTokenType.Null)
-                                        {
-                                            TimeSpan retryIntervalInstance = TimeSpan.Parse(((string)retryIntervalValue), CultureInfo.InvariantCulture);
-                                            waitOnExternalInstance.RetryInterval = retryIntervalInstance;
-                                        }
-                                        
-                                        JToken retryTimeoutValue = waitOnExternalValue["retryTimeout"];
-                                        if (retryTimeoutValue != null && retryTimeoutValue.Type != JTokenType.Null)
-                                        {
-                                            TimeSpan retryTimeoutInstance = TimeSpan.Parse(((string)retryTimeoutValue), CultureInfo.InvariantCulture);
-                                            waitOnExternalInstance.RetryTimeout = retryTimeoutInstance;
-                                        }
-                                        
-                                        JToken maximumRetryValue = waitOnExternalValue["maximumRetry"];
-                                        if (maximumRetryValue != null && maximumRetryValue.Type != JTokenType.Null)
-                                        {
-                                            int maximumRetryInstance = ((int)maximumRetryValue);
-                                            waitOnExternalInstance.MaximumRetry = maximumRetryInstance;
-                                        }
-                                    }
-                                    
-                                    JToken styleValue = availabilityValue["style"];
-                                    if (styleValue != null && styleValue.Type != JTokenType.Null)
-                                    {
-                                        string styleInstance = ((string)styleValue);
-                                        availabilityInstance.Style = styleInstance;
                                     }
                                 }
                                 
@@ -2278,6 +2398,41 @@ namespace Microsoft.Azure.Management.DataFactories.Core
                                         {
                                             TimeSpan latencyLengthInstance = TimeSpan.Parse(((string)latencyLengthValue), CultureInfo.InvariantCulture);
                                             latencyInstance.LatencyLength = latencyLengthInstance;
+                                        }
+                                    }
+                                    
+                                    JToken externalTableValue = policyValue["externalTable"];
+                                    if (externalTableValue != null && externalTableValue.Type != JTokenType.Null)
+                                    {
+                                        ExternalTableRetryPolicy externalTableInstance = new ExternalTableRetryPolicy();
+                                        policyInstance.ExternalTable = externalTableInstance;
+                                        
+                                        JToken dataDelayValue = externalTableValue["dataDelay"];
+                                        if (dataDelayValue != null && dataDelayValue.Type != JTokenType.Null)
+                                        {
+                                            TimeSpan dataDelayInstance = TimeSpan.Parse(((string)dataDelayValue), CultureInfo.InvariantCulture);
+                                            externalTableInstance.DataDelay = dataDelayInstance;
+                                        }
+                                        
+                                        JToken retryIntervalValue = externalTableValue["retryInterval"];
+                                        if (retryIntervalValue != null && retryIntervalValue.Type != JTokenType.Null)
+                                        {
+                                            TimeSpan retryIntervalInstance = TimeSpan.Parse(((string)retryIntervalValue), CultureInfo.InvariantCulture);
+                                            externalTableInstance.RetryInterval = retryIntervalInstance;
+                                        }
+                                        
+                                        JToken retryTimeoutValue = externalTableValue["retryTimeout"];
+                                        if (retryTimeoutValue != null && retryTimeoutValue.Type != JTokenType.Null)
+                                        {
+                                            TimeSpan retryTimeoutInstance = TimeSpan.Parse(((string)retryTimeoutValue), CultureInfo.InvariantCulture);
+                                            externalTableInstance.RetryTimeout = retryTimeoutInstance;
+                                        }
+                                        
+                                        JToken maximumRetryValue = externalTableValue["maximumRetry"];
+                                        if (maximumRetryValue != null && maximumRetryValue.Type != JTokenType.Null)
+                                        {
+                                            int maximumRetryInstance = ((int)maximumRetryValue);
+                                            externalTableInstance.MaximumRetry = maximumRetryInstance;
                                         }
                                     }
                                 }
@@ -2582,80 +2737,73 @@ namespace Microsoft.Azure.Management.DataFactories.Core
                                             }
                                         }
                                         
-                                        JToken availabilityValue = propertiesValue["availability"];
-                                        if (availabilityValue != null && availabilityValue.Type != JTokenType.Null)
+                                        JToken updateModeValue = propertiesValue["updateMode"];
+                                        if (updateModeValue != null && updateModeValue.Type != JTokenType.Null)
                                         {
-                                            Availability availabilityInstance = new Availability();
-                                            propertiesInstance.Availability = availabilityInstance;
+                                            string updateModeInstance = ((string)updateModeValue);
+                                            propertiesInstance.UpdateMode = updateModeInstance;
+                                        }
+                                        
+                                        JToken slicingModelValue = propertiesValue["slicingModel"];
+                                        if (slicingModelValue != null && slicingModelValue.Type != JTokenType.Null)
+                                        {
+                                            SlicingModel slicingModelInstance = new SlicingModel();
+                                            propertiesInstance.SlicingModel = slicingModelInstance;
                                             
-                                            JToken frequencyValue = availabilityValue["frequency"];
-                                            if (frequencyValue != null && frequencyValue.Type != JTokenType.Null)
+                                            JToken slicersArray = slicingModelValue["slicers"];
+                                            if (slicersArray != null && slicersArray.Type != JTokenType.Null)
                                             {
-                                                string frequencyInstance = ((string)frequencyValue);
-                                                availabilityInstance.Frequency = frequencyInstance;
-                                            }
-                                            
-                                            JToken intervalValue = availabilityValue["interval"];
-                                            if (intervalValue != null && intervalValue.Type != JTokenType.Null)
-                                            {
-                                                uint intervalInstance = ((uint)intervalValue);
-                                                availabilityInstance.Interval = intervalInstance;
-                                            }
-                                            
-                                            JToken anchorDateTimeValue = availabilityValue["anchorDateTime"];
-                                            if (anchorDateTimeValue != null && anchorDateTimeValue.Type != JTokenType.Null)
-                                            {
-                                                DateTime anchorDateTimeInstance = ((DateTime)anchorDateTimeValue);
-                                                availabilityInstance.AnchorDateTime = anchorDateTimeInstance;
-                                            }
-                                            
-                                            JToken offsetValue = availabilityValue["offset"];
-                                            if (offsetValue != null && offsetValue.Type != JTokenType.Null)
-                                            {
-                                                TimeSpan offsetInstance = TimeSpan.Parse(((string)offsetValue), CultureInfo.InvariantCulture);
-                                                availabilityInstance.Offset = offsetInstance;
-                                            }
-                                            
-                                            JToken waitOnExternalValue = availabilityValue["waitOnExternal"];
-                                            if (waitOnExternalValue != null && waitOnExternalValue.Type != JTokenType.Null)
-                                            {
-                                                WaitOnExternal waitOnExternalInstance = new WaitOnExternal();
-                                                availabilityInstance.WaitOnExternal = waitOnExternalInstance;
-                                                
-                                                JToken dataDelayValue = waitOnExternalValue["dataDelay"];
-                                                if (dataDelayValue != null && dataDelayValue.Type != JTokenType.Null)
+                                                foreach (JToken slicersValue in ((JArray)slicersArray))
                                                 {
-                                                    TimeSpan dataDelayInstance = TimeSpan.Parse(((string)dataDelayValue), CultureInfo.InvariantCulture);
-                                                    waitOnExternalInstance.DataDelay = dataDelayInstance;
+                                                    string typeName = ((string)slicersValue["type"]);
+                                                    if (typeName == "TimeSlicer")
+                                                    {
+                                                        TimeSlicer timeSlicerInstance = new TimeSlicer();
+                                                        
+                                                        JToken frequencyValue = slicersValue["frequency"];
+                                                        if (frequencyValue != null && frequencyValue.Type != JTokenType.Null)
+                                                        {
+                                                            string frequencyInstance = ((string)frequencyValue);
+                                                            timeSlicerInstance.Frequency = frequencyInstance;
+                                                        }
+                                                        
+                                                        JToken intervalValue = slicersValue["interval"];
+                                                        if (intervalValue != null && intervalValue.Type != JTokenType.Null)
+                                                        {
+                                                            uint intervalInstance = ((uint)intervalValue);
+                                                            timeSlicerInstance.Interval = intervalInstance;
+                                                        }
+                                                        
+                                                        JToken anchorDateTimeValue = slicersValue["anchorDateTime"];
+                                                        if (anchorDateTimeValue != null && anchorDateTimeValue.Type != JTokenType.Null)
+                                                        {
+                                                            DateTime anchorDateTimeInstance = ((DateTime)anchorDateTimeValue);
+                                                            timeSlicerInstance.AnchorDateTime = anchorDateTimeInstance;
+                                                        }
+                                                        
+                                                        JToken offsetValue = slicersValue["offset"];
+                                                        if (offsetValue != null && offsetValue.Type != JTokenType.Null)
+                                                        {
+                                                            TimeSpan offsetInstance = TimeSpan.Parse(((string)offsetValue), CultureInfo.InvariantCulture);
+                                                            timeSlicerInstance.Offset = offsetInstance;
+                                                        }
+                                                        
+                                                        JToken styleValue = slicersValue["style"];
+                                                        if (styleValue != null && styleValue.Type != JTokenType.Null)
+                                                        {
+                                                            string styleInstance = ((string)styleValue);
+                                                            timeSlicerInstance.Style = styleInstance;
+                                                        }
+                                                        
+                                                        JToken nameValue3 = slicersValue["name"];
+                                                        if (nameValue3 != null && nameValue3.Type != JTokenType.Null)
+                                                        {
+                                                            string nameInstance3 = ((string)nameValue3);
+                                                            timeSlicerInstance.Name = nameInstance3;
+                                                        }
+                                                        slicingModelInstance.Slicers.Add(timeSlicerInstance);
+                                                    }
                                                 }
-                                                
-                                                JToken retryIntervalValue = waitOnExternalValue["retryInterval"];
-                                                if (retryIntervalValue != null && retryIntervalValue.Type != JTokenType.Null)
-                                                {
-                                                    TimeSpan retryIntervalInstance = TimeSpan.Parse(((string)retryIntervalValue), CultureInfo.InvariantCulture);
-                                                    waitOnExternalInstance.RetryInterval = retryIntervalInstance;
-                                                }
-                                                
-                                                JToken retryTimeoutValue = waitOnExternalValue["retryTimeout"];
-                                                if (retryTimeoutValue != null && retryTimeoutValue.Type != JTokenType.Null)
-                                                {
-                                                    TimeSpan retryTimeoutInstance = TimeSpan.Parse(((string)retryTimeoutValue), CultureInfo.InvariantCulture);
-                                                    waitOnExternalInstance.RetryTimeout = retryTimeoutInstance;
-                                                }
-                                                
-                                                JToken maximumRetryValue = waitOnExternalValue["maximumRetry"];
-                                                if (maximumRetryValue != null && maximumRetryValue.Type != JTokenType.Null)
-                                                {
-                                                    int maximumRetryInstance = ((int)maximumRetryValue);
-                                                    waitOnExternalInstance.MaximumRetry = maximumRetryInstance;
-                                                }
-                                            }
-                                            
-                                            JToken styleValue = availabilityValue["style"];
-                                            if (styleValue != null && styleValue.Type != JTokenType.Null)
-                                            {
-                                                string styleInstance = ((string)styleValue);
-                                                availabilityInstance.Style = styleInstance;
                                             }
                                         }
                                         
@@ -2704,6 +2852,41 @@ namespace Microsoft.Azure.Management.DataFactories.Core
                                                 {
                                                     TimeSpan latencyLengthInstance = TimeSpan.Parse(((string)latencyLengthValue), CultureInfo.InvariantCulture);
                                                     latencyInstance.LatencyLength = latencyLengthInstance;
+                                                }
+                                            }
+                                            
+                                            JToken externalTableValue = policyValue["externalTable"];
+                                            if (externalTableValue != null && externalTableValue.Type != JTokenType.Null)
+                                            {
+                                                ExternalTableRetryPolicy externalTableInstance = new ExternalTableRetryPolicy();
+                                                policyInstance.ExternalTable = externalTableInstance;
+                                                
+                                                JToken dataDelayValue = externalTableValue["dataDelay"];
+                                                if (dataDelayValue != null && dataDelayValue.Type != JTokenType.Null)
+                                                {
+                                                    TimeSpan dataDelayInstance = TimeSpan.Parse(((string)dataDelayValue), CultureInfo.InvariantCulture);
+                                                    externalTableInstance.DataDelay = dataDelayInstance;
+                                                }
+                                                
+                                                JToken retryIntervalValue = externalTableValue["retryInterval"];
+                                                if (retryIntervalValue != null && retryIntervalValue.Type != JTokenType.Null)
+                                                {
+                                                    TimeSpan retryIntervalInstance = TimeSpan.Parse(((string)retryIntervalValue), CultureInfo.InvariantCulture);
+                                                    externalTableInstance.RetryInterval = retryIntervalInstance;
+                                                }
+                                                
+                                                JToken retryTimeoutValue = externalTableValue["retryTimeout"];
+                                                if (retryTimeoutValue != null && retryTimeoutValue.Type != JTokenType.Null)
+                                                {
+                                                    TimeSpan retryTimeoutInstance = TimeSpan.Parse(((string)retryTimeoutValue), CultureInfo.InvariantCulture);
+                                                    externalTableInstance.RetryTimeout = retryTimeoutInstance;
+                                                }
+                                                
+                                                JToken maximumRetryValue = externalTableValue["maximumRetry"];
+                                                if (maximumRetryValue != null && maximumRetryValue.Type != JTokenType.Null)
+                                                {
+                                                    int maximumRetryInstance = ((int)maximumRetryValue);
+                                                    externalTableInstance.MaximumRetry = maximumRetryInstance;
                                                 }
                                             }
                                         }
@@ -2958,80 +3141,73 @@ namespace Microsoft.Azure.Management.DataFactories.Core
                                             }
                                         }
                                         
-                                        JToken availabilityValue = propertiesValue["availability"];
-                                        if (availabilityValue != null && availabilityValue.Type != JTokenType.Null)
+                                        JToken updateModeValue = propertiesValue["updateMode"];
+                                        if (updateModeValue != null && updateModeValue.Type != JTokenType.Null)
                                         {
-                                            Availability availabilityInstance = new Availability();
-                                            propertiesInstance.Availability = availabilityInstance;
+                                            string updateModeInstance = ((string)updateModeValue);
+                                            propertiesInstance.UpdateMode = updateModeInstance;
+                                        }
+                                        
+                                        JToken slicingModelValue = propertiesValue["slicingModel"];
+                                        if (slicingModelValue != null && slicingModelValue.Type != JTokenType.Null)
+                                        {
+                                            SlicingModel slicingModelInstance = new SlicingModel();
+                                            propertiesInstance.SlicingModel = slicingModelInstance;
                                             
-                                            JToken frequencyValue = availabilityValue["frequency"];
-                                            if (frequencyValue != null && frequencyValue.Type != JTokenType.Null)
+                                            JToken slicersArray = slicingModelValue["slicers"];
+                                            if (slicersArray != null && slicersArray.Type != JTokenType.Null)
                                             {
-                                                string frequencyInstance = ((string)frequencyValue);
-                                                availabilityInstance.Frequency = frequencyInstance;
-                                            }
-                                            
-                                            JToken intervalValue = availabilityValue["interval"];
-                                            if (intervalValue != null && intervalValue.Type != JTokenType.Null)
-                                            {
-                                                uint intervalInstance = ((uint)intervalValue);
-                                                availabilityInstance.Interval = intervalInstance;
-                                            }
-                                            
-                                            JToken anchorDateTimeValue = availabilityValue["anchorDateTime"];
-                                            if (anchorDateTimeValue != null && anchorDateTimeValue.Type != JTokenType.Null)
-                                            {
-                                                DateTime anchorDateTimeInstance = ((DateTime)anchorDateTimeValue);
-                                                availabilityInstance.AnchorDateTime = anchorDateTimeInstance;
-                                            }
-                                            
-                                            JToken offsetValue = availabilityValue["offset"];
-                                            if (offsetValue != null && offsetValue.Type != JTokenType.Null)
-                                            {
-                                                TimeSpan offsetInstance = TimeSpan.Parse(((string)offsetValue), CultureInfo.InvariantCulture);
-                                                availabilityInstance.Offset = offsetInstance;
-                                            }
-                                            
-                                            JToken waitOnExternalValue = availabilityValue["waitOnExternal"];
-                                            if (waitOnExternalValue != null && waitOnExternalValue.Type != JTokenType.Null)
-                                            {
-                                                WaitOnExternal waitOnExternalInstance = new WaitOnExternal();
-                                                availabilityInstance.WaitOnExternal = waitOnExternalInstance;
-                                                
-                                                JToken dataDelayValue = waitOnExternalValue["dataDelay"];
-                                                if (dataDelayValue != null && dataDelayValue.Type != JTokenType.Null)
+                                                foreach (JToken slicersValue in ((JArray)slicersArray))
                                                 {
-                                                    TimeSpan dataDelayInstance = TimeSpan.Parse(((string)dataDelayValue), CultureInfo.InvariantCulture);
-                                                    waitOnExternalInstance.DataDelay = dataDelayInstance;
+                                                    string typeName = ((string)slicersValue["type"]);
+                                                    if (typeName == "TimeSlicer")
+                                                    {
+                                                        TimeSlicer timeSlicerInstance = new TimeSlicer();
+                                                        
+                                                        JToken frequencyValue = slicersValue["frequency"];
+                                                        if (frequencyValue != null && frequencyValue.Type != JTokenType.Null)
+                                                        {
+                                                            string frequencyInstance = ((string)frequencyValue);
+                                                            timeSlicerInstance.Frequency = frequencyInstance;
+                                                        }
+                                                        
+                                                        JToken intervalValue = slicersValue["interval"];
+                                                        if (intervalValue != null && intervalValue.Type != JTokenType.Null)
+                                                        {
+                                                            uint intervalInstance = ((uint)intervalValue);
+                                                            timeSlicerInstance.Interval = intervalInstance;
+                                                        }
+                                                        
+                                                        JToken anchorDateTimeValue = slicersValue["anchorDateTime"];
+                                                        if (anchorDateTimeValue != null && anchorDateTimeValue.Type != JTokenType.Null)
+                                                        {
+                                                            DateTime anchorDateTimeInstance = ((DateTime)anchorDateTimeValue);
+                                                            timeSlicerInstance.AnchorDateTime = anchorDateTimeInstance;
+                                                        }
+                                                        
+                                                        JToken offsetValue = slicersValue["offset"];
+                                                        if (offsetValue != null && offsetValue.Type != JTokenType.Null)
+                                                        {
+                                                            TimeSpan offsetInstance = TimeSpan.Parse(((string)offsetValue), CultureInfo.InvariantCulture);
+                                                            timeSlicerInstance.Offset = offsetInstance;
+                                                        }
+                                                        
+                                                        JToken styleValue = slicersValue["style"];
+                                                        if (styleValue != null && styleValue.Type != JTokenType.Null)
+                                                        {
+                                                            string styleInstance = ((string)styleValue);
+                                                            timeSlicerInstance.Style = styleInstance;
+                                                        }
+                                                        
+                                                        JToken nameValue3 = slicersValue["name"];
+                                                        if (nameValue3 != null && nameValue3.Type != JTokenType.Null)
+                                                        {
+                                                            string nameInstance3 = ((string)nameValue3);
+                                                            timeSlicerInstance.Name = nameInstance3;
+                                                        }
+                                                        slicingModelInstance.Slicers.Add(timeSlicerInstance);
+                                                    }
                                                 }
-                                                
-                                                JToken retryIntervalValue = waitOnExternalValue["retryInterval"];
-                                                if (retryIntervalValue != null && retryIntervalValue.Type != JTokenType.Null)
-                                                {
-                                                    TimeSpan retryIntervalInstance = TimeSpan.Parse(((string)retryIntervalValue), CultureInfo.InvariantCulture);
-                                                    waitOnExternalInstance.RetryInterval = retryIntervalInstance;
-                                                }
-                                                
-                                                JToken retryTimeoutValue = waitOnExternalValue["retryTimeout"];
-                                                if (retryTimeoutValue != null && retryTimeoutValue.Type != JTokenType.Null)
-                                                {
-                                                    TimeSpan retryTimeoutInstance = TimeSpan.Parse(((string)retryTimeoutValue), CultureInfo.InvariantCulture);
-                                                    waitOnExternalInstance.RetryTimeout = retryTimeoutInstance;
-                                                }
-                                                
-                                                JToken maximumRetryValue = waitOnExternalValue["maximumRetry"];
-                                                if (maximumRetryValue != null && maximumRetryValue.Type != JTokenType.Null)
-                                                {
-                                                    int maximumRetryInstance = ((int)maximumRetryValue);
-                                                    waitOnExternalInstance.MaximumRetry = maximumRetryInstance;
-                                                }
-                                            }
-                                            
-                                            JToken styleValue = availabilityValue["style"];
-                                            if (styleValue != null && styleValue.Type != JTokenType.Null)
-                                            {
-                                                string styleInstance = ((string)styleValue);
-                                                availabilityInstance.Style = styleInstance;
                                             }
                                         }
                                         
@@ -3080,6 +3256,41 @@ namespace Microsoft.Azure.Management.DataFactories.Core
                                                 {
                                                     TimeSpan latencyLengthInstance = TimeSpan.Parse(((string)latencyLengthValue), CultureInfo.InvariantCulture);
                                                     latencyInstance.LatencyLength = latencyLengthInstance;
+                                                }
+                                            }
+                                            
+                                            JToken externalTableValue = policyValue["externalTable"];
+                                            if (externalTableValue != null && externalTableValue.Type != JTokenType.Null)
+                                            {
+                                                ExternalTableRetryPolicy externalTableInstance = new ExternalTableRetryPolicy();
+                                                policyInstance.ExternalTable = externalTableInstance;
+                                                
+                                                JToken dataDelayValue = externalTableValue["dataDelay"];
+                                                if (dataDelayValue != null && dataDelayValue.Type != JTokenType.Null)
+                                                {
+                                                    TimeSpan dataDelayInstance = TimeSpan.Parse(((string)dataDelayValue), CultureInfo.InvariantCulture);
+                                                    externalTableInstance.DataDelay = dataDelayInstance;
+                                                }
+                                                
+                                                JToken retryIntervalValue = externalTableValue["retryInterval"];
+                                                if (retryIntervalValue != null && retryIntervalValue.Type != JTokenType.Null)
+                                                {
+                                                    TimeSpan retryIntervalInstance = TimeSpan.Parse(((string)retryIntervalValue), CultureInfo.InvariantCulture);
+                                                    externalTableInstance.RetryInterval = retryIntervalInstance;
+                                                }
+                                                
+                                                JToken retryTimeoutValue = externalTableValue["retryTimeout"];
+                                                if (retryTimeoutValue != null && retryTimeoutValue.Type != JTokenType.Null)
+                                                {
+                                                    TimeSpan retryTimeoutInstance = TimeSpan.Parse(((string)retryTimeoutValue), CultureInfo.InvariantCulture);
+                                                    externalTableInstance.RetryTimeout = retryTimeoutInstance;
+                                                }
+                                                
+                                                JToken maximumRetryValue = externalTableValue["maximumRetry"];
+                                                if (maximumRetryValue != null && maximumRetryValue.Type != JTokenType.Null)
+                                                {
+                                                    int maximumRetryInstance = ((int)maximumRetryValue);
+                                                    externalTableInstance.MaximumRetry = maximumRetryInstance;
                                                 }
                                             }
                                         }

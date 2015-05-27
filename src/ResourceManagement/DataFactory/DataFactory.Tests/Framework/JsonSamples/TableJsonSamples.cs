@@ -50,18 +50,25 @@ namespace DataFactory.Tests.Framework.JsonSamples
     name: ""TestOut"",
     properties:
     {
+        updateMode: ""IncrementalTimeSeries"",
         type: ""OnPremisesSqlServerTableLocation"",
         linkedServiceName: ""MyLinkedServiceName"",
         typeProperties:
         {            
             tableName: ""$EncryptedString$MyEncryptedTableName""            
         },
-        availability:
+        slicingModel:
         {
+            slicers: [
+            {
+            type: ""TimeSlicer"",
+            name: ""timeSlicer"",
             offset: ""01:00:00"",
             interval: 1,
             anchorDateTime: ""2014-02-27T12:00:00"",
             frequency: ""Hour""
+            }
+            ]
         }
     }
 }
@@ -73,18 +80,25 @@ namespace DataFactory.Tests.Framework.JsonSamples
     name: ""TestOut"",
     properties:
     {
+        updateMode: ""IncrementalTimeSeries"",
         type: ""OnPremisesOracleTableLocation"",
         linkedServiceName: ""MyLinkedServiceName"",
         typeProperties:
         {            
             tableName: ""$EncryptedString$MyEncryptedTableName""            
         },
-        availability:
+        slicingModel:
         {
+            slicers: [
+            {
+            type: ""TimeSlicer"",
+            name: ""timeSlicer"",
             offset: ""01:00:00"",
             interval: 1,
             anchorDateTime: ""2014-02-27T12:00:00"",
             frequency: ""Hour""
+            }
+            ]
         }
     }
 }
@@ -96,6 +110,7 @@ namespace DataFactory.Tests.Framework.JsonSamples
     name: ""TestOut"",
     properties:
     {
+        updateMode: ""IncrementalTimeSeries"",
         type: ""AzureSqlTableLocation"",
         linkedServiceName: ""MyLinkedServiceName"",
         published: ""True"",
@@ -107,11 +122,17 @@ namespace DataFactory.Tests.Framework.JsonSamples
         {            
             tableName: ""mytablename"",            
         },
-        availability: 
+        slicingModel:
         {
-            interval: 1, 
-            frequency: ""Hour"",
-        },
+            slicers: [
+            {
+            type: ""TimeSlicer"",
+            name: ""timeSlicer"",
+            interval: 1,
+            frequency: ""Hour""
+            }
+            ]
+        }
     }
 }
 ";
@@ -122,6 +143,7 @@ namespace DataFactory.Tests.Framework.JsonSamples
     name: ""TestOut"",
     properties:
     {
+        updateMode: ""IncrementalTimeSeries"",
         type: ""AzureSqlTableLocation"",
         linkedServiceName: ""MyLinkedServiceName"",
         published: ""False"",
@@ -133,11 +155,19 @@ namespace DataFactory.Tests.Framework.JsonSamples
         {            
             tableName: ""mytablename""            
         },
-        availability: 
+        
+        slicingModel:
         {
-            interval: 1, 
-            frequency: ""Hour"",
-        },
+            slicers: [
+            {
+            type: ""TimeSlicer"",
+            name: ""timeSlicer"",
+            interval: 1,
+            frequency: ""Hour""
+            }
+            ]
+        }
+
     }
 }
 ";
@@ -148,6 +178,7 @@ namespace DataFactory.Tests.Framework.JsonSamples
     name: ""MyDemoBlob"",
     properties:
     {
+        updateMode: ""IncrementalTimeSeries"",
         type: ""AzureBlobLocation"",
         linkedServiceName: ""MyLinkedServiceName"",
         structure:
@@ -176,11 +207,17 @@ namespace DataFactory.Tests.Framework.JsonSamples
 		        { name: ""PartitionKey"", value: { type: ""DateTime"", date: ""SliceStart"", format: ""yyyy-MM-dd"" } },
             ]
         },
-        availability:
+        slicingModel:
         {
-            interval: 1, 
+            slicers: [
+            {
+            type: ""TimeSlicer"",
+            name: ""timeSlicer"",
+            interval: 1,
             frequency: ""Hour"",
             style: ""StartOfInterval""     
+            }
+            ]
         },
         policy:
         {
@@ -198,6 +235,7 @@ namespace DataFactory.Tests.Framework.JsonSamples
     name: ""External"",
     properties:
     {
+        updateMode: ""IncrementalTimeSeries"",
         type: ""AzureBlobLocation"",
         linkedServiceName: ""MyLinkedServiceName"",
         typeProperties:
@@ -205,26 +243,33 @@ namespace DataFactory.Tests.Framework.JsonSamples
             folderPath: ""MyContainer\\MySubFolder\\$Date\\$Time\\FileName$Date$Time"",
             fileName: ""TestBlobName""            
         },
-        availability:
+        slicingModel:
         {
+            slicers: [
+            {
+            type: ""TimeSlicer"",
+            name: ""timeSlicer"",
             offset: ""01:00:00"",
             interval: 1,
             anchorDateTime: ""2014-02-27T12:00:00"",
-            frequency: ""Hour"",
-            waitOnExternal:
-            {
-                dataDelay: ""00:10:00"",
-                retryInterval: ""00:01:00"",
-                retryTimeout: ""00:10:00"",
-                maximumRetry: 3
-            },
+            frequency: ""Hour""
+            }
+            ]
         },
         policy:
         {
             validation:
             {
                 minimumSizeMB: 10.0,
-            }
+            },
+            externalTable:
+            {
+                dataDelay: ""00:10:00"",
+                retryInterval: ""00:01:00"",
+                retryTimeout: ""00:10:00"",
+                maximumRetry: 3
+            },
+
         }
     }
 }";
@@ -235,6 +280,7 @@ namespace DataFactory.Tests.Framework.JsonSamples
     name: ""External"",
     properties:
     {
+        updateMode: ""IncrementalTimeSeries"",
         type: ""AzureBlobLocation"",
         linkedServiceName: ""MyLinkedServiceName"",
         typeProperties:
@@ -242,22 +288,31 @@ namespace DataFactory.Tests.Framework.JsonSamples
             folderPath: ""MyContainer\\MySubFolder\\$Date\\$Time\\FileName$Date$Time"",
             fileName: ""TestBlobName""            
         },
-        availability:
+
+        slicingModel:
         {
+            slicers: [
+            {
+            type: ""TimeSlicer"",
+            name: ""timeSlicer"",
             offset: ""01:00:00"",
             interval: 1,
             anchorDateTime: ""2014-02-27T12:00:00"",
-            frequency: ""Hour"",
-            waitOnExternal:
-            {
-            },
+            frequency: ""Hour""
+            }
+            ]
         },
+
         policy:
         {
             validation:
             {
                 minimumSizeMB: 10.0,
-            }
+            },
+            externalTable:
+            {
+            },
+
         }
     }
 }";
@@ -268,18 +323,25 @@ namespace DataFactory.Tests.Framework.JsonSamples
     name: ""TableWithValidation"",
     properties:
     {
+        updateMode: ""IncrementalTimeSeries"",
         type: ""AzureTableLocation"",
         linkedServiceName: ""MyLinkedServiceName"",
         typeProperties:
         {            
             tableName: ""table$Date$Time""            
         },
-        availability:
+        slicingModel:
         {
+            slicers: [
+            {
+            type: ""TimeSlicer"",
+            name: ""timeSlicer"",
             offset: ""01:00:00"",
             interval: 1,
             anchorDateTime: ""2014-02-27T12:00:00"",
             frequency: ""Hour""
+            }
+            ]
         },
         policy:
         {
@@ -297,18 +359,25 @@ namespace DataFactory.Tests.Framework.JsonSamples
     name: ""TableWithLatency"",
     properties:
     {
+        updateMode: ""IncrementalTimeSeries"",
         type: ""AzureTableLocation"",
         linkedServiceName: ""MyLinkedServiceName"",
         typeProperties:
         {            
             tableName: ""table$Date$Time""            
         },
-        availability:
+        slicingModel:
         {
+            slicers: [
+            {
+            type: ""TimeSlicer"",
+            name: ""timeSlicer"",
             offset: ""01:00:00"",
             interval: 1,
             anchorDateTime: ""2014-02-27T12:00:00"",
             frequency: ""Hour""
+            }
+            ]
         },
         policy:
         {
@@ -330,20 +399,28 @@ namespace DataFactory.Tests.Framework.JsonSamples
     name: ""TableWithStyle"",
     properties:
     {
+        updateMode: ""IncrementalTimeSeries"",
         type: ""AzureTableLocation"",
         linkedServiceName: ""MyLinkedServiceName"",
         typeProperties:
         {            
             tableName: ""table$Date$Time""            
         },
-        availability:
+        slicingModel:
         {
+            slicers: [
+            {
+            type: ""TimeSlicer"",
+            name: ""timeSlicer"",
             offset: ""01:00:00"",
             interval: 1,
             anchorDateTime: ""2014-02-27T12:00:00"",
             frequency: ""Hour"",
             style: ""EndOfInterval""
+            }
+            ]
         },
+
         policy:
         {
             validation:
@@ -360,6 +437,7 @@ namespace DataFactory.Tests.Framework.JsonSamples
     name: ""DA_PartitionTest"",
     properties:
     {
+        updateMode: ""IncrementalTimeSeries"",
         type: ""AzureBlobLocation"",
         linkedServiceName: ""LinkedService-CuratedWikiData"",
         structure:  
@@ -380,11 +458,17 @@ namespace DataFactory.Tests.Framework.JsonSamples
 				{ name: ""Hour"", value: { type: ""DateTime"", date: ""SliceStart"", format: ""hh"" } } 
 			]            
         },
-        availability: 
+        slicingModel:
         {
+            slicers: [
+            {
+            type: ""TimeSlicer"",
+            name: ""timeSlicer"",
+            interval: 1,
             frequency: ""Hour"",
-            interval: 1
-        }
+            }
+            ]
+        },
     }
 }";
 
@@ -394,6 +478,7 @@ namespace DataFactory.Tests.Framework.JsonSamples
     name: ""DA_PartitionTest"",
     properties:
     {
+        updateMode: ""IncrementalTimeSeries"",
         type: ""AzureBlobLocation"",
         linkedServiceName: ""LinkedService-CuratedWikiData"",
         typeProperties:
@@ -407,11 +492,18 @@ namespace DataFactory.Tests.Framework.JsonSamples
             { name: ""projectname"", position: 1, type: ""String""},
             { name: ""pageviews"", position: 2, type: ""Decimal""}
         ],
-        availability: 
+
+        slicingModel:
         {
+            slicers: [
+            {
+            type: ""TimeSlicer"",
+            name: ""timeSlicer"",
+            interval: 1,
             frequency: ""Hour"",
-            interval: 1
-        }
+            }
+            ]
+        },
     }
 }";
     }

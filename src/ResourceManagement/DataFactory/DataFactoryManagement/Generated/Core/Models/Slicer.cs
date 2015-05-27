@@ -21,53 +21,44 @@
 
 using System;
 using System.Linq;
-using Microsoft.Azure.Management.DataFactories.Common.Models;
 
-namespace Microsoft.Azure.Management.DataFactories.Common.Models
+namespace Microsoft.Azure.Management.DataFactories.Core.Models
 {
     /// <summary>
-    /// Policy of a table.
+    /// Slicer
     /// </summary>
-    public partial class Policy
+    public abstract partial class Slicer
     {
-        private ExternalTableRetryPolicy _externalTable;
+        private string _name;
         
         /// <summary>
-        /// Optional. External table retry policy.
+        /// Required. slicer name.
         /// </summary>
-        public ExternalTableRetryPolicy ExternalTable
+        public string Name
         {
-            get { return this._externalTable; }
-            set { this._externalTable = value; }
-        }
-        
-        private LatencyPolicy _latency;
-        
-        /// <summary>
-        /// Optional. Latency policy.
-        /// </summary>
-        public LatencyPolicy Latency
-        {
-            get { return this._latency; }
-            set { this._latency = value; }
-        }
-        
-        private ValidationPolicy _validation;
-        
-        /// <summary>
-        /// Optional. Validation policy.
-        /// </summary>
-        public ValidationPolicy Validation
-        {
-            get { return this._validation; }
-            set { this._validation = value; }
+            get { return this._name; }
+            set { this._name = value; }
         }
         
         /// <summary>
-        /// Initializes a new instance of the Policy class.
+        /// Initializes a new instance of the Slicer class.
         /// </summary>
-        public Policy()
+        public Slicer()
         {
+        }
+        
+        /// <summary>
+        /// Initializes a new instance of the Slicer class with required
+        /// arguments.
+        /// </summary>
+        public Slicer(string name)
+            : this()
+        {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            this.Name = name;
         }
     }
 }

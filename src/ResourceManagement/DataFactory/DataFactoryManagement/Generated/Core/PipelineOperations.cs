@@ -325,6 +325,17 @@ namespace Microsoft.Azure.Management.DataFactories.Core
                                     {
                                         policyValue["longRetryInterval"] = activitiesItem.Policy.LongRetryInterval.Value.ToString();
                                     }
+                                    
+                                    if (activitiesItem.Policy.Schedule != null)
+                                    {
+                                        JObject scheduleValue = new JObject();
+                                        policyValue["schedule"] = scheduleValue;
+                                        if (activitiesItem.Policy.Schedule is OutputTimeSlicer)
+                                        {
+                                            scheduleValue["type"] = "OutputTimeSlicer";
+                                            OutputTimeSlicer derived = ((OutputTimeSlicer)activitiesItem.Policy.Schedule);
+                                        }
+                                    }
                                 }
                                 
                                 if (activitiesItem.Inputs != null)
@@ -582,6 +593,17 @@ namespace Microsoft.Azure.Management.DataFactories.Core
                                             {
                                                 TimeSpan longRetryIntervalInstance = TimeSpan.Parse(((string)longRetryIntervalValue), CultureInfo.InvariantCulture);
                                                 policyInstance.LongRetryInterval = longRetryIntervalInstance;
+                                            }
+                                            
+                                            JToken scheduleValue2 = policyValue2["schedule"];
+                                            if (scheduleValue2 != null && scheduleValue2.Type != JTokenType.Null)
+                                            {
+                                                string typeName = ((string)scheduleValue2["type"]);
+                                                if (typeName == "OutputTimeSlicer")
+                                                {
+                                                    OutputTimeSlicer outputTimeSlicerInstance = new OutputTimeSlicer();
+                                                    policyInstance.Schedule = outputTimeSlicerInstance;
+                                                }
                                             }
                                         }
                                         
@@ -1027,6 +1049,17 @@ namespace Microsoft.Azure.Management.DataFactories.Core
                                             {
                                                 TimeSpan longRetryIntervalInstance = TimeSpan.Parse(((string)longRetryIntervalValue), CultureInfo.InvariantCulture);
                                                 policyInstance.LongRetryInterval = longRetryIntervalInstance;
+                                            }
+                                            
+                                            JToken scheduleValue = policyValue["schedule"];
+                                            if (scheduleValue != null && scheduleValue.Type != JTokenType.Null)
+                                            {
+                                                string typeName = ((string)scheduleValue["type"]);
+                                                if (typeName == "OutputTimeSlicer")
+                                                {
+                                                    OutputTimeSlicer outputTimeSlicerInstance = new OutputTimeSlicer();
+                                                    policyInstance.Schedule = outputTimeSlicerInstance;
+                                                }
                                             }
                                         }
                                         
@@ -1866,6 +1899,17 @@ namespace Microsoft.Azure.Management.DataFactories.Core
                                                 TimeSpan longRetryIntervalInstance = TimeSpan.Parse(((string)longRetryIntervalValue), CultureInfo.InvariantCulture);
                                                 policyInstance.LongRetryInterval = longRetryIntervalInstance;
                                             }
+                                            
+                                            JToken scheduleValue = policyValue["schedule"];
+                                            if (scheduleValue != null && scheduleValue.Type != JTokenType.Null)
+                                            {
+                                                string typeName = ((string)scheduleValue["type"]);
+                                                if (typeName == "OutputTimeSlicer")
+                                                {
+                                                    OutputTimeSlicer outputTimeSlicerInstance = new OutputTimeSlicer();
+                                                    policyInstance.Schedule = outputTimeSlicerInstance;
+                                                }
+                                            }
                                         }
                                         
                                         JToken inputsArray = activitiesValue["inputs"];
@@ -2223,6 +2267,17 @@ namespace Microsoft.Azure.Management.DataFactories.Core
                                             {
                                                 TimeSpan longRetryIntervalInstance = TimeSpan.Parse(((string)longRetryIntervalValue), CultureInfo.InvariantCulture);
                                                 policyInstance.LongRetryInterval = longRetryIntervalInstance;
+                                            }
+                                            
+                                            JToken scheduleValue = policyValue["schedule"];
+                                            if (scheduleValue != null && scheduleValue.Type != JTokenType.Null)
+                                            {
+                                                string typeName = ((string)scheduleValue["type"]);
+                                                if (typeName == "OutputTimeSlicer")
+                                                {
+                                                    OutputTimeSlicer outputTimeSlicerInstance = new OutputTimeSlicer();
+                                                    policyInstance.Schedule = outputTimeSlicerInstance;
+                                                }
                                             }
                                         }
                                         
@@ -2649,6 +2704,17 @@ namespace Microsoft.Azure.Management.DataFactories.Core
                                                         TimeSpan longRetryIntervalInstance = TimeSpan.Parse(((string)longRetryIntervalValue), CultureInfo.InvariantCulture);
                                                         policyInstance.LongRetryInterval = longRetryIntervalInstance;
                                                     }
+                                                    
+                                                    JToken scheduleValue = policyValue["schedule"];
+                                                    if (scheduleValue != null && scheduleValue.Type != JTokenType.Null)
+                                                    {
+                                                        string typeName = ((string)scheduleValue["type"]);
+                                                        if (typeName == "OutputTimeSlicer")
+                                                        {
+                                                            OutputTimeSlicer outputTimeSlicerInstance = new OutputTimeSlicer();
+                                                            policyInstance.Schedule = outputTimeSlicerInstance;
+                                                        }
+                                                    }
                                                 }
                                                 
                                                 JToken inputsArray = activitiesValue["inputs"];
@@ -3023,6 +3089,17 @@ namespace Microsoft.Azure.Management.DataFactories.Core
                                                     {
                                                         TimeSpan longRetryIntervalInstance = TimeSpan.Parse(((string)longRetryIntervalValue), CultureInfo.InvariantCulture);
                                                         policyInstance.LongRetryInterval = longRetryIntervalInstance;
+                                                    }
+                                                    
+                                                    JToken scheduleValue = policyValue["schedule"];
+                                                    if (scheduleValue != null && scheduleValue.Type != JTokenType.Null)
+                                                    {
+                                                        string typeName = ((string)scheduleValue["type"]);
+                                                        if (typeName == "OutputTimeSlicer")
+                                                        {
+                                                            OutputTimeSlicer outputTimeSlicerInstance = new OutputTimeSlicer();
+                                                            policyInstance.Schedule = outputTimeSlicerInstance;
+                                                        }
                                                     }
                                                 }
                                                 

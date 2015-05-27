@@ -21,53 +21,37 @@
 
 using System;
 using System.Linq;
-using Microsoft.Azure.Management.DataFactories.Common.Models;
 
-namespace Microsoft.Azure.Management.DataFactories.Common.Models
+namespace Microsoft.Azure.Management.DataFactories.Core.Models
 {
     /// <summary>
-    /// Policy of a table.
+    /// The enum for all the supported schedule period types.
     /// </summary>
-    public partial class Policy
+    public static partial class SchedulePeriod
     {
-        private ExternalTableRetryPolicy _externalTable;
+        /// <summary>
+        /// Minute.
+        /// </summary>
+        public const string Minute = "Minute";
         
         /// <summary>
-        /// Optional. External table retry policy.
+        /// Hour.
         /// </summary>
-        public ExternalTableRetryPolicy ExternalTable
-        {
-            get { return this._externalTable; }
-            set { this._externalTable = value; }
-        }
-        
-        private LatencyPolicy _latency;
+        public const string Hour = "Hour";
         
         /// <summary>
-        /// Optional. Latency policy.
+        /// Day.
         /// </summary>
-        public LatencyPolicy Latency
-        {
-            get { return this._latency; }
-            set { this._latency = value; }
-        }
-        
-        private ValidationPolicy _validation;
+        public const string Day = "Day";
         
         /// <summary>
-        /// Optional. Validation policy.
+        /// Week.
         /// </summary>
-        public ValidationPolicy Validation
-        {
-            get { return this._validation; }
-            set { this._validation = value; }
-        }
+        public const string Week = "Week";
         
         /// <summary>
-        /// Initializes a new instance of the Policy class.
+        /// Month.
         /// </summary>
-        public Policy()
-        {
-        }
+        public const string Month = "Month";
     }
 }
